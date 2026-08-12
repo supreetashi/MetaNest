@@ -3,7 +3,7 @@ name: Deploy MetaNest Frontend
 on:
   push:
     branches:
-      - main
+      - dev
 
   workflow_dispatch:
 
@@ -30,8 +30,8 @@ jobs:
             cd /root/MetaNest
 
             git fetch origin
-            git checkout main
-            git reset --hard origin/main
+            git checkout dev
+            git reset --hard origin/dev
 
             docker stop metanest-frontend || true
             docker rm metanest-frontend || true
