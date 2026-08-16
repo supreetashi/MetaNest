@@ -112,13 +112,13 @@ function SocietyDetailsPanel() {
     setDraft((prev) => ({ ...prev, [field]: value }));
 
   return (
-    <Stack spacing={2.5}>
+    <Stack spacing={2}>
       <Stack direction="row" sx={{ alignItems: 'flex-start', justifyContent: 'space-between' }}>
         <Box>
-          <Typography variant="h6" sx={{ fontWeight: 800 }}>
+          <Typography sx={{ fontSize: '1.25rem', fontWeight: 800, color: '#263238' }}>
             Apartment / Society Details
           </Typography>
-          <Typography variant="body2" color="text.secondary">
+          <Typography sx={{ color: 'text.secondary', fontSize: '0.95rem' }}>
             Core information about your housing society
           </Typography>
         </Box>
@@ -139,7 +139,7 @@ function SocietyDetailsPanel() {
         >
           <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: 2 }}>
             <ApartmentIcon color="primary" fontSize="small" />
-            <Typography sx={{ fontWeight: 800 }}>Basic Information</Typography>
+            <Typography sx={{ fontWeight: 800, fontSize: '1.1rem' }}>Basic Information</Typography>
           </Stack>
           <Stack spacing={1.75}>
             <InfoRow label="Society Name" value={details.societyName} />
@@ -156,7 +156,7 @@ function SocietyDetailsPanel() {
         >
           <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: 2 }}>
             <LocationOnIcon color="primary" fontSize="small" />
-            <Typography sx={{ fontWeight: 800 }}>Address & Contact</Typography>
+            <Typography sx={{ fontWeight: 800, fontSize: '1.1rem' }}>Address & Contact</Typography>
           </Stack>
           <Stack spacing={1.75}>
             <InfoRow label="Address" value={details.address} />
@@ -168,10 +168,10 @@ function SocietyDetailsPanel() {
         </Paper>
       </Stack>
 
-      <Paper variant="outlined" sx={{ borderRadius: 3, borderColor: 'rgba(148, 163, 184, 0.35)', p: 2.5 }}>
+      <Paper variant="outlined" sx={{ borderRadius: 3, borderColor: 'rgba(148, 163, 184, 0.35)', p: 2.25 }}>
         <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mb: 2 }}>
           <AccountBalanceIcon color="primary" fontSize="small" />
-          <Typography sx={{ fontWeight: 800 }}>Bank Account Details</Typography>
+          <Typography sx={{ fontWeight: 800, fontSize: '1.05rem' }}>Bank Account Details</Typography>
         </Stack>
         <Stack direction={{ xs: 'column', sm: 'row' }} spacing={3}>
           <InfoRow label="Bank Name" value={details.bankName} />
@@ -279,7 +279,7 @@ function MasterTab() {
             <Box key={section.section}>
               <Typography
                 variant="caption"
-                sx={{ fontWeight: 700, color: 'text.disabled', letterSpacing: '0.06em', pl: 1 }}
+                sx={{ fontWeight: 700, color: 'text.disabled', letterSpacing: '0.06em', pl: 1, fontSize: '0.72rem' }}
               >
                 {section.section.toUpperCase()}
               </Typography>
@@ -294,8 +294,8 @@ function MasterTab() {
                       px: 1.5,
                       py: 1,
                       borderRadius: 2,
-                      fontSize: '0.88rem',
-                      fontWeight: 600,
+                      fontSize: '0.95rem',
+                      fontWeight: 700,
                       color: activeKey === item.key ? '#fff' : 'text.primary',
                       bgcolor: activeKey === item.key ? '#0f172a' : 'transparent',
                     }}

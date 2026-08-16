@@ -18,23 +18,46 @@ function StatCard({ label, value, valueColor, footerIcon, footerText, footerColo
     <Paper
       variant="outlined"
       sx={{
-        p: 2.5,
+        p: 2.25,
         borderRadius: 3,
         borderColor: 'rgba(148, 163, 184, 0.35)',
         flex: 1,
         minWidth: 0,
+        bgcolor: 'rgba(255,255,255,0.28)',
       }}
     >
-      <Stack spacing={1.25}>
-        <Typography variant="body2" color="text.secondary">
+      <Stack spacing={1.2}>
+        <Typography
+          sx={{
+            color: '#6b7280',
+            fontSize: '0.72rem',
+            fontWeight: 800,
+            letterSpacing: '0.1em',
+            textTransform: 'uppercase',
+          }}
+        >
           {label}
         </Typography>
-        <Typography variant="h4" sx={{ fontWeight: 800, color: valueColor ?? 'text.primary' }}>
+        <Typography
+          sx={{
+            fontSize: '1.8rem',
+            lineHeight: 1.08,
+            letterSpacing: '-0.05em',
+            fontWeight: 800,
+            color: valueColor ?? '#1f2937',
+          }}
+        >
           {value}
         </Typography>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, minHeight: 18 }}>
           {footerIcon}
-          <Typography variant="caption" sx={{ fontWeight: 600, color: footerColor ?? 'text.secondary' }}>
+          <Typography
+            sx={{
+              fontSize: '0.78rem',
+              fontWeight: 600,
+              color: footerColor ?? '#6b7280',
+            }}
+          >
             {footerText}
           </Typography>
         </Box>
