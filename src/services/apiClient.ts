@@ -6,13 +6,16 @@ interface ApiErrorResponse {
   [key: string]: unknown;
 }
 
+const PUBLIC_AUTH_PATHS = new Set(['/auth/send-otp/', '/auth/verify-otp/', '/auth/resend-otp/']);
+
 export async function apiRequest<T>(path: string, options: RequestInit = {}): Promise<T> {
   const accessToken = localStorage.getItem('metanest_access_token');
+  const shouldAttachAccessToken = accessToken && !PUBLIC_AUTH_PATHS.has(path);
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
-      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      ...(shouldAttachAccessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
       ...options.headers,
     },
   });
@@ -21,7 +24,14 @@ export async function apiRequest<T>(path: string, options: RequestInit = {}): Pr
   if (!response.ok) {
     const errorData = data as ApiErrorResponse | null;
     const message = errorData?.detail ?? errorData?.message ?? 'Request failed';
-    throw new Error(typeof message === 'string' ? message : JSON.stringify(message));
+    if (typeof message === 'string') {
+      throw new Error(message);
+    }
+
+    const fieldErrors = Object.entries(message as Record<string, unknown>)
+      .map(([field, errors]) => `${field}: ${Array.isArray(errors) ? errors.join(', ') : String(errors)}`)
+      .join(' ');
+    throw new Error(fieldErrors || JSON.stringify(message));
   }
 
   return data as T;
