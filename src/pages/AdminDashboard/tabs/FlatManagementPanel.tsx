@@ -140,6 +140,7 @@ function FlatManagementPanel() {
           value={statusFilter}
           onChange={(event) => setStatusFilter(event.target.value as StatusFilter)}
           sx={{ minWidth: 150 }}
+          MenuProps={{ disableScrollLock: true }}
         >
           <MenuItem value="all">All Status</MenuItem>
           <MenuItem value="occupied">Occupied</MenuItem>
@@ -149,7 +150,7 @@ function FlatManagementPanel() {
 
       <Paper variant="outlined" sx={{ borderRadius: 3, borderColor: 'rgba(148, 163, 184, 0.35)' }}>
         <TableContainer>
-          <Table>
+          <Table sx={{ '& .MuiTableCell-root': { fontSize: '11.25px' } }}>
             <TableHead>
               <TableRow>
                 <TableCell sx={{ fontWeight: 700 }}>Flat No.</TableCell>
@@ -171,11 +172,17 @@ function FlatManagementPanel() {
                 <TableRow key={flat.id} hover>
                   <TableCell sx={{ fontWeight: 700 }}>{flat.flatNo}</TableCell>
                   <TableCell>
-                    <Chip label={flat.wingLabel} size="small" sx={{ fontWeight: 600 }} />
+                    <Chip label={flat.wingLabel} size="small" sx={{ fontWeight: 600, fontSize: '11.25px' }} />
                   </TableCell>
-                  <TableCell>{flat.floorCode}</TableCell>
+                  <TableCell sx={{ fontSize: '11.25px' }}>{flat.floorCode}</TableCell>
                   <TableCell>
-                    <Chip label={flat.type} size="small" color="secondary" variant="outlined" />
+                    <Chip
+                      label={flat.type}
+                      size="small"
+                      color="secondary"
+                      variant="outlined"
+                      sx={{ fontSize: '11.25px' }}
+                    />
                   </TableCell>
                   <TableCell>{flat.area}</TableCell>
                   <TableCell>
@@ -184,6 +191,7 @@ function FlatManagementPanel() {
                       size="small"
                       sx={{
                         fontWeight: 600,
+                        fontSize: '11.25px',
                         bgcolor: flat.status === 'occupied' ? '#E7F8F0' : 'rgba(148, 163, 184, 0.15)',
                         color: flat.status === 'occupied' ? '#1FA971' : 'text.secondary',
                       }}

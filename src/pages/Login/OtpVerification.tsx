@@ -9,7 +9,8 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import LoginDialog from '../../components/LoginDialog';
 import OTPInput from '../../components/OTPInput';
-import { sendOTP, verifyOTP } from '../../api/authApi';
+import { resendOTP, verifyOTP } from '../../api/authApi';
+import { ApiError } from '../../api/httpClient';
 import type { UserRole } from '../../types/auth';
 
 const RESEND_SECONDS = 30;
@@ -23,13 +24,15 @@ function OtpVerification() {
   const mobileNumber = state?.mobileNumber;
 
   const [otp, setOtp] = useState('');
-  const [expectedOtp, setExpectedOtp] = useState(state?.otp ?? '');
+  // Only populated when the backend is in console/dev SMS mode — see SendOtpResponse.
+  // Purely informational; the real verification always happens server-side now.
+  const [demoOtp, setDemoOtp] = useState(state?.otp);
   const [verifying, setVerifying] = useState(false);
   const [error, setError] = useState('');
   const [secondsLeft, setSecondsLeft] = useState(RESEND_SECONDS);
 
   useEffect(() => {
-    if (!mobileNumber || !role || !expectedOtp) {
+    if (!mobileNumber || !role) {
       navigate(role ? `/login/${role}/mobile` : '/login', { replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -41,7 +44,7 @@ function OtpVerification() {
     return () => clearTimeout(timer);
   }, [secondsLeft]);
 
-  if (!mobileNumber || !role || !expectedOtp) {
+  if (!mobileNumber || !role) {
     return null;
   }
 
@@ -52,11 +55,11 @@ function OtpVerification() {
     setVerifying(true);
     setError('');
     try {
-      await verifyOTP(otp, expectedOtp, role);
-      const destination = role === 'resident' ? '/resident/select-flat' : `/${role}`;
+      const response = await verifyOTP(mobileNumber, otp, role);
+      const destination = response.user.role === 'resident' ? '/resident/select-flat' : `/${response.user.role}`;
       navigate(destination, { replace: true });
-    } catch {
-      setError('Incorrect OTP. Please try again.');
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Incorrect OTP. Please try again.');
     } finally {
       setVerifying(false);
     }
@@ -67,8 +70,14 @@ function OtpVerification() {
     setOtp('');
     setError('');
     setSecondsLeft(RESEND_SECONDS);
-    const response = await sendOTP(mobileNumber);
-    setExpectedOtp(response.otp);
+    try {
+      // resend-otp doesn't echo the OTP back (unlike send-otp), so clear
+      // any previously-shown demo value — it's no longer the current OTP.
+      setDemoOtp(undefined);
+      await resendOTP(mobileNumber, role);
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Could not resend OTP. Please try again.');
+    }
   };
 
   return (
@@ -85,13 +94,15 @@ function OtpVerification() {
         </Typography>
       </Stack>
 
-      <Alert
-        severity="info"
-        icon={<InfoOutlinedIcon fontSize="small" />}
-        sx={{ mb: 2.5, fontSize: '0.85rem' }}
-      >
-        Demo mode &mdash; no SMS is sent. Your OTP is <strong>{expectedOtp}</strong>.
-      </Alert>
+      {demoOtp ? (
+        <Alert
+          severity="info"
+          icon={<InfoOutlinedIcon fontSize="small" />}
+          sx={{ mb: 2.5, fontSize: '0.85rem' }}
+        >
+          Demo mode &mdash; no SMS is sent. Your OTP is <strong>{demoOtp}</strong>.
+        </Alert>
+      ) : null}
 
       <Stack spacing={2.5} sx={{ alignItems: 'center' }}>
         <OTPInput
@@ -130,7 +141,7 @@ function OtpVerification() {
           onClick={handleVerify}
           sx={{ py: 1.4, fontSize: '1rem' }}
         >
-          Verify & Login
+          {verifying ? 'Verifying...' : 'Verify & Login'}
         </Button>
 
         <Stack direction="row" spacing={0.5} sx={{ justifyContent: 'center', alignItems: 'center' }}>

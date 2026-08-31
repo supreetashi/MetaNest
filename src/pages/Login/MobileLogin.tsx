@@ -8,6 +8,7 @@ import Typography from '@mui/material/Typography';
 import LoginDialog from '../../components/LoginDialog';
 import MobileNumberInput from '../../components/MobileNumberInput';
 import { sendOTP } from '../../api/authApi';
+import { ApiError } from '../../api/httpClient';
 import type { UserRole } from '../../types/auth';
 
 function capitalize(value: string) {
@@ -19,15 +20,22 @@ function MobileLogin() {
   const { role } = useParams<{ role: UserRole }>();
   const [mobileNumber, setMobileNumber] = useState('');
   const [sending, setSending] = useState(false);
+  const [error, setError] = useState('');
 
   const isValid = mobileNumber.length === 10;
 
   const handleContinue = async () => {
-    if (!isValid || sending) return;
+    if (!isValid || sending || !role) return;
     setSending(true);
-    const response = await sendOTP(mobileNumber);
-    setSending(false);
-    navigate(`/login/${role}/otp`, { state: { mobileNumber, otp: response.otp } });
+    setError('');
+    try {
+      const response = await sendOTP(mobileNumber, role);
+      navigate(`/login/${role}/otp`, { state: { mobileNumber, otp: response.otp } });
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'Could not send OTP. Please try again.');
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -46,6 +54,12 @@ function MobileLogin() {
         <MobileNumberInput value={mobileNumber} onChange={setMobileNumber} autoFocus />
       </Stack>
 
+      {error ? (
+        <Typography variant="body2" color="error" sx={{ fontWeight: 600, mb: 2 }}>
+          {error}
+        </Typography>
+      ) : null}
+
       <Button
         fullWidth
         size="large"
@@ -55,7 +69,7 @@ function MobileLogin() {
         startIcon={<PhoneAndroidIcon />}
         sx={{ py: 1.4, fontSize: '1rem' }}
       >
-        Continue
+        {sending ? 'Sending...' : 'Continue'}
       </Button>
 
       <Stack direction="row" spacing={0.5} sx={{ mt: 2, justifyContent: 'center', alignItems: 'center' }}>

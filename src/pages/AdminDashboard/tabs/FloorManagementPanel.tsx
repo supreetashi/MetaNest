@@ -61,7 +61,7 @@ function FloorManagementPanel() {
                 px: 2,
                 py: 0.75,
                 borderRadius: 2.5,
-                fontSize: '0.85rem',
+                fontSize: '13.125px',
                 fontWeight: 600,
                 color: isActive ? '#fff' : 'text.primary',
                 bgcolor: isActive ? '#0f172a' : 'transparent',
@@ -91,9 +91,9 @@ function FloorManagementPanel() {
               {visibleFloors.map((floor) => (
                 <TableRow key={floor.id} hover>
                   <TableCell>
-                    <Chip label={floor.wingLabel} size="small" sx={{ fontWeight: 600 }} />
+                    <Chip label={floor.wingLabel} size="small" sx={{ fontWeight: 600, fontSize: '11.25px' }} />
                   </TableCell>
-                  <TableCell>{floor.floorLabel}</TableCell>
+                  <TableCell sx={{ fontSize: '13.125px' }}>{floor.floorLabel}</TableCell>
                   <TableCell>{floor.level}</TableCell>
                   <TableCell>{floor.flatsCount}</TableCell>
                   <TableCell align="right">
