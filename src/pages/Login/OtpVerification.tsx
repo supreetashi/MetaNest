@@ -9,8 +9,9 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import LoginDialog from '../../components/LoginDialog';
 import OTPInput from '../../components/OTPInput';
-import { resendOTP, verifyOTP } from '../../api/authApi';
-import { ApiError } from '../../api/httpClient';
+import { resendOTP, verifyOTP } from '../../services/authService';
+import { useAppDispatch } from '../../redux/hooks';
+import { setAuthSession } from '../../redux/slices/authSlice';
 import type { UserRole } from '../../types/auth';
 
 const RESEND_SECONDS = 30;
@@ -19,14 +20,12 @@ const OTP_LENGTH = 6;
 function OtpVerification() {
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useAppDispatch();
   const { role } = useParams<{ role: UserRole }>();
-  const state = location.state as { mobileNumber?: string; otp?: string } | null;
+  const state = location.state as { mobileNumber?: string; developmentOtp?: string } | null;
   const mobileNumber = state?.mobileNumber;
 
   const [otp, setOtp] = useState('');
-  // Only populated when the backend is in console/dev SMS mode — see SendOtpResponse.
-  // Purely informational; the real verification always happens server-side now.
-  const [demoOtp, setDemoOtp] = useState(state?.otp);
   const [verifying, setVerifying] = useState(false);
   const [error, setError] = useState('');
   const [secondsLeft, setSecondsLeft] = useState(RESEND_SECONDS);
@@ -55,11 +54,20 @@ function OtpVerification() {
     setVerifying(true);
     setError('');
     try {
-      const response = await verifyOTP(mobileNumber, otp, role);
-      const destination = response.user.role === 'resident' ? '/resident/select-flat' : `/${response.user.role}`;
+      const response = await verifyOTP(otp, mobileNumber, role);
+      dispatch(
+        setAuthSession({
+          mobileNumber,
+          role,
+          accessToken: response.access,
+          refreshToken: response.refresh,
+          user: response.user,
+        }),
+      );
+      const destination = role === 'resident' ? '/resident/select-flat' : `/${role}`;
       navigate(destination, { replace: true });
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Incorrect OTP. Please try again.');
+      setError(err instanceof Error ? err.message : 'Incorrect OTP. Please try again.');
     } finally {
       setVerifying(false);
     }
@@ -70,14 +78,7 @@ function OtpVerification() {
     setOtp('');
     setError('');
     setSecondsLeft(RESEND_SECONDS);
-    try {
-      // resend-otp doesn't echo the OTP back (unlike send-otp), so clear
-      // any previously-shown demo value — it's no longer the current OTP.
-      setDemoOtp(undefined);
-      await resendOTP(mobileNumber, role);
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Could not resend OTP. Please try again.');
-    }
+    await resendOTP(mobileNumber, role);
   };
 
   return (
@@ -94,15 +95,15 @@ function OtpVerification() {
         </Typography>
       </Stack>
 
-      {demoOtp ? (
-        <Alert
-          severity="info"
-          icon={<InfoOutlinedIcon fontSize="small" />}
-          sx={{ mb: 2.5, fontSize: '0.85rem' }}
-        >
-          Demo mode &mdash; no SMS is sent. Your OTP is <strong>{demoOtp}</strong>.
-        </Alert>
-      ) : null}
+      <Alert
+        severity="info"
+        icon={<InfoOutlinedIcon fontSize="small" />}
+        sx={{ mb: 2.5, fontSize: '0.85rem' }}
+      >
+        {state?.developmentOtp
+          ? `Development mode OTP: ${state.developmentOtp}`
+          : 'Enter the 6-digit OTP sent to your mobile number.'}
+      </Alert>
 
       <Stack spacing={2.5} sx={{ alignItems: 'center' }}>
         <OTPInput

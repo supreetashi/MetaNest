@@ -2,13 +2,13 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import PhoneAndroidIcon from '@mui/icons-material/PhoneAndroid';
+import Alert from '@mui/material/Alert';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import LoginDialog from '../../components/LoginDialog';
 import MobileNumberInput from '../../components/MobileNumberInput';
-import { sendOTP } from '../../api/authApi';
-import { ApiError } from '../../api/httpClient';
+import { sendOTP } from '../../services/authService';
 import type { UserRole } from '../../types/auth';
 
 function capitalize(value: string) {
@@ -29,10 +29,10 @@ function MobileLogin() {
     setSending(true);
     setError('');
     try {
-      const response = await sendOTP(mobileNumber, role);
-      navigate(`/login/${role}/otp`, { state: { mobileNumber, otp: response.otp } });
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Could not send OTP. Please try again.');
+      const response = await sendOTP(mobileNumber, role as UserRole);
+      navigate(`/login/${role}/otp`, { state: { mobileNumber, developmentOtp: response.otp } });
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : 'Unable to send OTP.');
     } finally {
       setSending(false);
     }
@@ -54,11 +54,7 @@ function MobileLogin() {
         <MobileNumberInput value={mobileNumber} onChange={setMobileNumber} autoFocus />
       </Stack>
 
-      {error ? (
-        <Typography variant="body2" color="error" sx={{ fontWeight: 600, mb: 2 }}>
-          {error}
-        </Typography>
-      ) : null}
+      {error ? <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert> : null}
 
       <Button
         fullWidth
