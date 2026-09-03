@@ -24,8 +24,7 @@ import {
   getSociety,
   getWings,
   updateWing,
-} from '../../../api/apartmentMasterApi';
-import { ApiError } from '../../../api/httpClient';
+} from '../../../services/apartmentMasterService';
 import type { Wing } from '../../../types/apartmentMaster';
 
 // Wing stats (total flats / occupied) have no stored field on the backend --
@@ -143,7 +142,7 @@ function BlockManagementPanel() {
         const withStats = await Promise.all(wingList.map(loadWingStats));
         if (!cancelled) setWings(withStats);
       } catch (err) {
-        if (!cancelled) setError(err instanceof ApiError ? err.message : 'Could not load wings.');
+        if (!cancelled) setError(err instanceof Error ? err.message : 'Could not load wings.');
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -174,7 +173,7 @@ function BlockManagementPanel() {
       await deleteWing(id);
     } catch (err) {
       setWings(previous);
-      setError(err instanceof ApiError ? err.message : 'Could not delete wing.');
+      setError(err instanceof Error ? err.message : 'Could not delete wing.');
     }
   };
 
@@ -192,7 +191,7 @@ function BlockManagementPanel() {
       }
       setDialogOpen(false);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Could not save wing.');
+      setError(err instanceof Error ? err.message : 'Could not save wing.');
     } finally {
       setSaving(false);
     }

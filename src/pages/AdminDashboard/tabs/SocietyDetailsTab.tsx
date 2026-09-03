@@ -8,8 +8,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { getSociety, getSocietySummary } from '../../../api/apartmentMasterApi';
-import { ApiError } from '../../../api/httpClient';
+import { getSociety, getSocietySummary } from '../../../services/apartmentMasterService';
 import type { Society, SocietySummary } from '../../../types/apartmentMaster';
 
 // TODO: Managing Committee and Bank Details have no backend fields yet
@@ -53,7 +52,7 @@ function SocietyDetailsTab() {
         if (!cancelled) setSummary(summaryData);
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof ApiError ? err.message : 'Could not load society details.');
+          setError(err instanceof Error ? err.message : 'Could not load society details.');
         }
       } finally {
         if (!cancelled) setLoading(false);
