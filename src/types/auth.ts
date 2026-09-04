@@ -10,6 +10,8 @@ export interface AuthUser {
 
 export interface RoleOption {
   role: UserRole;
+  title: string;
+  description: string;
 }
 
 export interface SendOtpResponse {

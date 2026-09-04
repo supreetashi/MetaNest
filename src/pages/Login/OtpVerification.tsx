@@ -66,8 +66,8 @@ function OtpVerification() {
       );
       const destination = role === 'resident' ? '/resident/select-flat' : `/${role}`;
       navigate(destination, { replace: true });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Incorrect OTP. Please try again.');
+    } catch {
+      setError('Incorrect OTP. Please try again.');
     } finally {
       setVerifying(false);
     }
@@ -142,7 +142,7 @@ function OtpVerification() {
           onClick={handleVerify}
           sx={{ py: 1.4, fontSize: '1rem' }}
         >
-          {verifying ? 'Verifying...' : 'Verify & Login'}
+          Verify & Login
         </Button>
 
         <Stack direction="row" spacing={0.5} sx={{ justifyContent: 'center', alignItems: 'center' }}>

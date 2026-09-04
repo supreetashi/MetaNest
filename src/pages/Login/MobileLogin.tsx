@@ -8,7 +8,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import LoginDialog from '../../components/LoginDialog';
 import MobileNumberInput from '../../components/MobileNumberInput';
-import { sendOTP } from '../../services/authService';
+import { sendOTP } from '../../api/authApi';
 import type { UserRole } from '../../types/auth';
 
 function capitalize(value: string) {
@@ -25,7 +25,7 @@ function MobileLogin() {
   const isValid = mobileNumber.length === 10;
 
   const handleContinue = async () => {
-    if (!isValid || sending || !role) return;
+    if (!isValid || sending) return;
     setSending(true);
     setError('');
     try {
@@ -65,7 +65,7 @@ function MobileLogin() {
         startIcon={<PhoneAndroidIcon />}
         sx={{ py: 1.4, fontSize: '1rem' }}
       >
-        {sending ? 'Sending...' : 'Continue'}
+        Continue
       </Button>
 
       <Stack direction="row" spacing={0.5} sx={{ mt: 2, justifyContent: 'center', alignItems: 'center' }}>
